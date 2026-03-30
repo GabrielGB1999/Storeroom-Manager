@@ -37,20 +37,20 @@ const translations = {
         clear: "Clear"
     },
     es: {
-        navTitle: "Gestor de Solicitudes de Almacén",
-        navWorker: "Trabajador",
-        navStorekeeper: "Almacenero",
+        navTitle: "Gestor de Solicitudes de Pañol",
+        navWorker: "Alumno",
+        navStorekeeper: "Pañlero",
         newRequest: "Nueva Solicitud",
         fullName: "Nombre Completo",
-        department: "Departamento/Sección",
-        supervisor: "Supervisor",
-        tools: "Herramientas",
+        department: "Curso",
+        supervisor: "Profesor",
+        tools: "Herramientas o consumibles",
         addBtn: "Agregar",
         sendRequest: "Enviar Solicitud",
         requestSent: "Solicitud Enviada",
         waitMessage: "Por favor, espere el llamado del almacenero en esta ventana",
         newRequestBtn: "Nueva Solicitud",
-        skAccess: "Acceso de Almacenero",
+        skAccess: "Acceso de Pañolero",
         password: "Contraseña",
         loginBtn: "Iniciar Sesión",
         activeRequest: "Solicitudes Activas",
@@ -63,10 +63,10 @@ const translations = {
         orderRetired: "PEDIDO RETIRADO",
         invalidPassword: "Contraseña Inválida",
         course: "Curso:",
-        sup: "Sup:",
+        sup: "Docente:",
         callWorker: "Llamar Trabajador",
         called: "LLAMADO",
-        clear: "Limpiar"
+        clear: "Entregado"
     }
 };
 
