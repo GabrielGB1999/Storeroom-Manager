@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    container_name: storeroom_backend
+    # Explicitly bind to all interfaces
+    ports:
+      - "0.0.0.0:6868:6868"
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: storeroom_frontend
+    # Bind 6767 on host to 6767 inside container
+    ports:
+      - "0.0.0.0:6767:6767"
+    depends_on:
+      - backend
+    restart: always

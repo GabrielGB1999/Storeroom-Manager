@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storeroom Manager</title>
+    <!-- Material Design Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-title" data-i18n="navTitle">Storeroom Request Manager</div>
+        <div class="nav-links">
+            <button onclick="toggleLanguage()" id="lang-toggle" style="margin-right: 15px; background: transparent; border: 1px solid white; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">ES</button>
+            <button onclick="showWorkerSection()" data-i18n="navWorker">Worker</button>
+            <button onclick="showStorekeeperLogin()" data-i18n="navStorekeeper">StoreKeeper</button>
+        </div>
+    </nav>
+
+    <!-- Worker Section -->
+    <div id="worker-section" class="container active">
+        <div class="card">
+            <h2 data-i18n="newRequest">New Request</h2>
+            <div class="input-group">
+                <input type="text" id="w-name" placeholder=" " required>
+                <label data-i18n="fullName">Full Name</label>
+            </div>
+            <div class="input-group">
+                <input type="text" id="w-course" placeholder=" " required>
+                <label data-i18n="department">Department/Section</label>
+            </div>
+            <div class="input-group">
+                <input type="text" id="w-supervisor" placeholder=" " required>
+                <label data-i18n="supervisor">Supervisor</label>
+            </div>
+
+            <div class="tool-adder">
+                <div class="input-group">
+                    <input type="text" id="w-tool-input" placeholder=" ">
+                    <label data-i18n="tools">Tools</label>
+                </div>
+                <button class="btn-secondary" onclick="addTool()" data-i18n="addBtn">Add</button>
+            </div>
+
+            <ul id="tool-list"></ul>
+
+            <button class="btn-primary" onclick="submitRequest()" data-i18n="sendRequest">Send Request</button>
+        </div>
+        
+        <!-- Status Overlay for Worker -->
+        <div id="worker-status-overlay" class="overlay hidden">
+            <div class="status-box">
+                <h2 id="status-message" data-i18n="requestSent">Request Sent</h2>
+                <div class="loader"></div>
+                <p data-i18n="waitMessage">Please, wait for the storekeeper call in this window</p>
+                <button id="reset-worker-btn" class="hidden btn-secondary" onclick="resetWorker()" data-i18n="newRequestBtn">New Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storekeeper Login -->
+    <div id="login-section" class="container hidden">
+        <div class="card login-card">
+            <h2 data-i18n="skAccess">StoreKeeper Access</h2>
+            <div class="input-group">
+                <input type="password" id="sk-password" placeholder=" ">
+                <label data-i18n="password">Password</label>
+            </div>
+            <button class="btn-primary" onclick="loginStorekeeper()" data-i18n="loginBtn">Log In</button>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <!-- Storekeeper Dashboard -->
+    <div id="storekeeper-dashboard" class="container hidden">
+        <div class="dashboard-header">
+            <h2 data-i18n="activeRequest">Active Request</h2>
+            <button class="btn-secondary" onclick="logoutStorekeeper()" data-i18n="exitBtn">Exit</button>
+        </div>
+        <div id="requests-grid" class="grid">
+            <!-- Requests will be injected here -->
+        </div>
+    </div>
+	
+	 <div class="copyright-text">
+        	&copy; Created by Gabriel1999. Deployed under GNU V3.0 by YOURNAME
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

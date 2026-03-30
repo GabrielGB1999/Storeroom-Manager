@@ -1,0 +1,17 @@
+{
+  "name": "storeroom-request-manager",
+  "version": "1.0.0",
+  "description": "Storeroom Request Manager",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "socket.io": "^4.8.3",
+    "uuid": "^9.0.0"
+  }
+}

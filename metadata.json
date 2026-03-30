@@ -1,0 +1,5 @@
+{
+  "name": "Storeroom Request Manager",
+  "description": "A lightweight web application designed to streamline the process of requesting tools in a workshop or storeroom environment.",
+  "requestFramePermissions": []
+}
