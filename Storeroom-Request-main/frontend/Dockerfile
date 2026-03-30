@@ -1,9 +1,14 @@
-FROM python:3.9-slim
+FROM nginx:alpine
 
-WORKDIR /app
+WORKDIR /usr/share/nginx/html
 
 # Copy all frontend files (html, css, js) into the container
 COPY . .
 
-# Run a simple HTTP server on port 6767
-CMD ["python", "-m", "http.server", "6767"]
+# Copy the custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 6767
+EXPOSE 6767
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -37,20 +37,20 @@ const translations = {
         clear: "Clear"
     },
     es: {
-        navTitle: "Gestor de Solicitudes de Pañol",
-        navWorker: "Alumno",
-        navStorekeeper: "Pañlero",
+        navTitle: "Gestor de Solicitudes de Almacén",
+        navWorker: "Trabajador",
+        navStorekeeper: "Almacenero",
         newRequest: "Nueva Solicitud",
         fullName: "Nombre Completo",
-        department: "Curso",
-        supervisor: "Profesor",
-        tools: "Herramientas o consumibles",
+        department: "Departamento/Sección",
+        supervisor: "Supervisor",
+        tools: "Herramientas",
         addBtn: "Agregar",
         sendRequest: "Enviar Solicitud",
         requestSent: "Solicitud Enviada",
         waitMessage: "Por favor, espere el llamado del almacenero en esta ventana",
         newRequestBtn: "Nueva Solicitud",
-        skAccess: "Acceso de Pañolero",
+        skAccess: "Acceso de Almacenero",
         password: "Contraseña",
         loginBtn: "Iniciar Sesión",
         activeRequest: "Solicitudes Activas",
@@ -63,10 +63,10 @@ const translations = {
         orderRetired: "PEDIDO RETIRADO",
         invalidPassword: "Contraseña Inválida",
         course: "Curso:",
-        sup: "Docente:",
+        sup: "Sup:",
         callWorker: "Llamar Trabajador",
         called: "LLAMADO",
-        clear: "Entregado"
+        clear: "Limpiar"
     }
 };
 
@@ -267,16 +267,28 @@ function resetWorker() {
 }
 
 // --- Storekeeper Logic ---
-function loginStorekeeper() {
+async function loginStorekeeper() {
     const pass = document.getElementById('sk-password').value;
-    if (pass === "admin123") { 
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('storekeeper-dashboard').classList.remove('hidden');
+    
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass })
+        });
         
-        // Join storekeeper room to receive real-time updates
-        socket.emit('join_storekeeper');
-    } else {
-        document.getElementById('login-error').innerText = translations[currentLang].invalidPassword;
+        if (response.ok) { 
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('storekeeper-dashboard').classList.remove('hidden');
+            
+            // Join storekeeper room to receive real-time updates
+            socket.emit('join_storekeeper');
+        } else {
+            document.getElementById('login-error').innerText = translations[currentLang].invalidPassword;
+        }
+    } catch (e) {
+        console.error("Login error:", e);
+        document.getElementById('login-error').innerText = translations[currentLang].failedConnect;
     }
 }
 

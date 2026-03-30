@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -101,6 +102,16 @@ app.get('/check_status/:req_id', (req, res) => {
     } else {
         return res.status(200).json({ status: 'fulfilled' });
     }
+});
+
+app.post('/login', (req, res) => {
+    const { password } = req.body;
+    const validPassword = process.env.STOREKEEPER_PASSWORD || 'admin123';
+    
+    if (password === validPassword) {
+        return res.status(200).json({ success: true });
+    }
+    return res.status(401).json({ success: false, message: 'Invalid password' });
 });
 
 server.listen(PORT, '0.0.0.0', () => {
