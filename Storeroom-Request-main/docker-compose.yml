@@ -2,6 +2,8 @@ services:
   backend:
     build: ./backend
     container_name: storeroom_backend
+    env_file:
+      - .env
     # Explicitly bind to all interfaces
     ports:
       - "0.0.0.0:6868:6868"
@@ -10,6 +12,8 @@ services:
   frontend:
     build: ./frontend
     container_name: storeroom_frontend
+    env_file:
+      - .env
     # Bind 6767 on host to 6767 inside container
     ports:
       - "0.0.0.0:6767:6767"
