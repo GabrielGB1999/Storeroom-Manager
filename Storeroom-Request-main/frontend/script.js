@@ -34,7 +34,15 @@ const translations = {
         sup: "Sup:",
         callWorker: "Call Worker",
         called: "CALLED",
-        clear: "Clear"
+        clear: "Clear",
+        cancelBtn: "Cancel Order",
+        submittedMsg: "Your request has been submitted. Look at the board below for updates.",
+        okBtn: "OK",
+        publicBoardTitle: "Order Status Board",
+        statusWaiting: "Waiting",
+        statusReady: "Ready",
+        statusDelivered: "Delivered",
+        reqId: "ID:"
     },
     es: {
         navTitle: "Gestor de Solicitudes de Almacén",
@@ -66,7 +74,15 @@ const translations = {
         sup: "Sup:",
         callWorker: "Llamar Trabajador",
         called: "LLAMADO",
-        clear: "Limpiar"
+        clear: "Limpiar",
+        cancelBtn: "Cancelar Pedido",
+        submittedMsg: "Su solicitud ha sido enviada. Vea la pizarra abajo para actualizaciones.",
+        okBtn: "Aceptar",
+        publicBoardTitle: "Pizarra de Pedidos",
+        statusWaiting: "En Espera",
+        statusReady: "Listo",
+        statusDelivered: "Entregado",
+        reqId: "ID:"
     }
 };
 
@@ -93,18 +109,32 @@ function applyTranslations() {
         }
     });
 
-    // Re-render requests if storekeeper dashboard is visible
-    if (!document.getElementById('storekeeper-dashboard').classList.contains('hidden')) {
-        // We need to fetch requests again to re-render with new language
-        fetch(`${API_URL}/get_requests`)
-            .then(res => res.json())
-            .then(data => renderRequests(data))
-            .catch(err => console.error("Error fetching requests for translation update:", err));
-    }
+    // Re-render requests and public board with new language
+    fetch(`${API_URL}/get_requests`)
+        .then(res => res.json())
+        .then(data => {
+            if (!document.getElementById('storekeeper-dashboard').classList.contains('hidden')) {
+                renderRequests(data);
+            }
+            if (!document.getElementById('worker-section').classList.contains('hidden')) {
+                renderPublicBoard(data);
+            }
+        })
+        .catch(err => console.error("Error fetching requests for translation update:", err));
 }
 
 // Initialize Socket.io
 const socket = io();
+
+// Periodically refresh the public board to clear expired "delivered" items
+setInterval(() => {
+    if (!document.getElementById('worker-section').classList.contains('hidden')) {
+        fetch(`${API_URL}/get_requests`)
+            .then(res => res.json())
+            .then(data => renderPublicBoard(data))
+            .catch(err => console.error("Error periodic refresh:", err));
+    }
+}, 60000);
 
 // Apply translations on load
 document.addEventListener('DOMContentLoaded', () => {
@@ -114,37 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
 // Handle reconnection
 socket.on('connect', () => {
     console.log('Connected to server');
+    socket.emit('join_requests_board'); // Always join so worker sees public board
+    
     if (!document.getElementById('storekeeper-dashboard').classList.contains('hidden')) {
         socket.emit('join_storekeeper');
     }
+    // We don't really need to rejoin a specific request room if the overlay is dismissed
+    // but we can keep it if they refresh while the modal is open
     if (currentWorkerReqId) {
-        // Show overlay if we have an active request
         document.getElementById('worker-status-overlay').classList.remove('hidden');
-        
+        let shortId = currentWorkerReqId.substring(0, 4).toUpperCase();
+        document.getElementById('status-req-id').innerText = shortId;
         socket.emit('join_request', currentWorkerReqId);
-        // Also fetch the current status just in case we missed an update while disconnected/reloading
-        fetch(`${API_URL}/check_status/${currentWorkerReqId}`)
-            .then(res => res.json())
-            .then(data => {
-                updateWorkerStatusUI(data.status);
-            })
-            .catch(err => console.error("Failed to fetch status on reconnect", err));
     }
 });
 
-// Listen for worker status updates
+// Listen for worker status updates (optional now, since it doesn't stay on screen)
 socket.on('status_updated', (data) => {
-    if (data.id === currentWorkerReqId) {
-        updateWorkerStatusUI(data.status);
-    }
+    // We can do something here if we want, but the public board handles it
 });
 
-// Listen for storekeeper dashboard updates
+// Listen for storekeeper dashboard and public board updates
 socket.on('requests_updated', (requests) => {
-    // Only update if storekeeper dashboard is visible
+    // Update storekeeper dashboard if visible
     if (!document.getElementById('storekeeper-dashboard').classList.contains('hidden')) {
         renderRequests(requests);
     }
+    
+    // Always update public board
+    renderPublicBoard(requests);
 });
 
 // --- Navigation Logic ---
@@ -223,9 +251,15 @@ async function submitRequest() {
         statusMsg.innerText = translations[currentLang].requestSent;
         statusMsg.style.color = "var(--primary)";
         
-        // Join the socket room for this specific request
+        let shortId = currentWorkerReqId.substring(0, 4).toUpperCase();
+        document.getElementById('status-req-id').innerText = shortId;
+        
+        // Hide Cancel inside the loop if desired, but we want it visible at first
+        
         socket.emit('join_request', currentWorkerReqId);
-
+        // Force server to send updated requests to everyone
+        // (Server already does this in submit_request now)
+        
     } catch (error) {
         console.error("Fetch error:", error);
         statusMsg.innerText = translations[currentLang].failedConnect;
@@ -236,22 +270,6 @@ async function submitRequest() {
     }
 }
 
-function updateWorkerStatusUI(status) {
-    const statusMsg = document.getElementById('status-message');
-    const loader = document.querySelector('.loader');
-    const resetBtn = document.getElementById('reset-worker-btn');
-
-    if (status === 'ready') {
-        statusMsg.innerText = translations[currentLang].orderReady;
-        statusMsg.style.color = "var(--secondary)"; 
-    } else if (status === 'fulfilled') {
-        statusMsg.innerText = translations[currentLang].orderRetired;
-        statusMsg.style.color = "green";
-        loader.style.display = 'none';
-        resetBtn.classList.remove('hidden');
-    }
-}
-
 function resetWorker() {
     currentWorkerReqId = null;
     localStorage.removeItem('currentWorkerReqId');
@@ -259,11 +277,62 @@ function resetWorker() {
     document.getElementById('w-name').value = '';
     document.getElementById('w-course').value = '';
     document.getElementById('w-supervisor').value = '';
-    document.getElementById('w-tool-input').value = ''; // Clear pending input too
+    document.getElementById('w-tool-input').value = ''; 
     renderTools();
+    
     document.getElementById('worker-status-overlay').classList.add('hidden');
-    document.querySelector('.loader').style.display = 'block';
-    document.getElementById('reset-worker-btn').classList.add('hidden');
+    document.getElementById('status-req-id').innerText = '';
+}
+
+async function cancelRequest() {
+    if (!currentWorkerReqId) return;
+    
+    if (!confirm(currentLang === 'en' ? "Are you sure you want to cancel this order?" : "¿Estás seguro de que deseas cancelar este pedido?")) {
+        return;
+    }
+
+    try {
+        await fetch(`${API_URL}/cancel_request`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: currentWorkerReqId })
+        });
+        resetWorker();
+    } catch (e) {
+        console.error("Cancel request error:", e);
+    }
+}
+
+function renderPublicBoard(requests) {
+    const listWaiting = document.getElementById('list-waiting');
+    const listReady = document.getElementById('list-ready');
+    const listDelivered = document.getElementById('list-delivered');
+    
+    if(!listWaiting) return;
+    
+    let htmlWaiting = '';
+    let htmlReady = '';
+    let htmlDelivered = '';
+    
+    requests.forEach(req => {
+        let shortId = req.id.substring(0, 4).toUpperCase();
+        let item = `<li>
+            <strong>${shortId} - ${req.name}</strong>
+            <span>${req.course}</span>
+        </li>`;
+        
+        if (req.status === 'pending') {
+            htmlWaiting += item;
+        } else if (req.status === 'ready') {
+            htmlReady += item;
+        } else if (req.status === 'delivered') {
+            htmlDelivered += item;
+        }
+    });
+
+    listWaiting.innerHTML = htmlWaiting;
+    listReady.innerHTML = htmlReady;
+    listDelivered.innerHTML = htmlDelivered;
 }
 
 // --- Storekeeper Logic ---
@@ -299,7 +368,10 @@ function logoutStorekeeper() {
 
 function renderRequests(requests) {
     const container = document.getElementById('requests-grid');
-    container.innerHTML = requests.map(req => `
+    // Storekeeper should not see delivered requests
+    const activeRequests = requests.filter(req => req.status !== 'delivered');
+    
+    container.innerHTML = activeRequests.map(req => `
         <div class="req-box ${req.status === 'ready' ? 'ready' : ''}">
             <h3>${req.name}</h3>
             <p><strong>${translations[currentLang].course}</strong> ${req.course}</p>

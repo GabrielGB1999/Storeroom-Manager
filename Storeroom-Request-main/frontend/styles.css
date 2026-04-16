@@ -180,6 +180,59 @@ body {
 }
 /* ... rest of your css ... */
 
+/* Public Board Grid */
+.public-board-card {
+    background: #e8eaf6;
+    border: 2px solid var(--primary);
+}
+.board-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.board-column {
+    flex: 1;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 200px;
+}
+.board-column h3 {
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+}
+.waiting-col h3 { border-color: #ff9800; color: #ff9800; }
+.ready-col h3 { border-color: var(--secondary); color: var(--secondary); }
+.delivered-col h3 { border-color: green; color: green; }
+
+.status-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.status-list li {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: left;
+    font-size: 0.9em;
+}
+.status-list li strong {
+    display: block;
+    font-size: 1.1em;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+.status-list li span {
+    color: #666;
+}
+
 .copyright-text {
     position: fixed;
     bottom: 15px;

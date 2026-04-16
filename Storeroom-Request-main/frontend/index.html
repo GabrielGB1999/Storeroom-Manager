@@ -55,9 +55,33 @@
         <div id="worker-status-overlay" class="overlay hidden">
             <div class="status-box">
                 <h2 id="status-message" data-i18n="requestSent">Request Sent</h2>
-                <div class="loader"></div>
-                <p data-i18n="waitMessage">Please, wait for the storekeeper call in this window</p>
-                <button id="reset-worker-btn" class="hidden btn-secondary" onclick="resetWorker()" data-i18n="newRequestBtn">New Request</button>
+                <h1 id="status-req-id" style="color: var(--primary); font-size: 2em; margin: 10px 0;"></h1>
+                <p id="status-subtitle" data-i18n="submittedMsg">Your request has been submitted with the ID above.</p>
+                
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button id="ok-worker-btn" class="btn-primary" onclick="resetWorker()" data-i18n="okBtn">OK</button>
+                    <button id="cancel-worker-btn" class="btn-danger" onclick="cancelRequest()" data-i18n="cancelBtn">Cancel Order</button>
+                </div>
+                <button id="reset-worker-btn" class="hidden btn-secondary" onclick="resetWorker()" data-i18n="newRequestBtn" style="margin-top: 10px;">New Request</button>
+            </div>
+        </div>
+
+        <!-- Public Request Board -->
+        <div class="card public-board-card" style="margin-top: 2rem;">
+            <h2 data-i18n="publicBoardTitle">Order Status Board</h2>
+            <div class="board-grid">
+                <div class="board-column waiting-col">
+                    <h3 data-i18n="statusWaiting">Waiting</h3>
+                    <ul id="list-waiting" class="status-list"></ul>
+                </div>
+                <div class="board-column ready-col">
+                    <h3 data-i18n="statusReady">Ready</h3>
+                    <ul id="list-ready" class="status-list"></ul>
+                </div>
+                <div class="board-column delivered-col" style="opacity: 0.7;">
+                    <h3 data-i18n="statusDelivered">Delivered</h3>
+                    <ul id="list-delivered" class="status-list"></ul>
+                </div>
             </div>
         </div>
     </div>
