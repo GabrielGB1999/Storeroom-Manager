@@ -45,7 +45,7 @@ const translations = {
         reqId: "ID:"
     },
     es: {
-        navTitle: "Gestor de Solicitudes de Almacén",
+        navTitle: "Gestor de Solicitudes de Pañol",
         navWorker: "Trabajador",
         navStorekeeper: "Almacenero",
         newRequest: "Nueva Solicitud",
